@@ -1,4 +1,7 @@
+import 'dart:async';
+import 'package:app/screens/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,7 +13,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
@@ -28,6 +30,23 @@ class LoadingPage extends StatefulWidget {
 }
 
 class _LoadingPageState extends State<LoadingPage> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
+  @override
+  void initState() {
+    super.initState();
+    _prefs.then((SharedPreferences prefs) {
+      var key = prefs.getString('accessKey');
+      debugPrint(key);
+      if (key != null) {
+        debugPrint(key);
+      } else {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const LoginScreen()));
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
