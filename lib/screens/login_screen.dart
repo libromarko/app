@@ -1,7 +1,7 @@
-import 'dart:convert';
-
+import 'package:app/screens/group_screen.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -11,9 +11,11 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  late String error;
 
   void postLogin() async {
     try {
@@ -22,19 +24,28 @@ class _LoginScreenState extends State<LoginScreen> {
         "password": passwordController.text,
       };
 
-      final Response response = await Dio().post("http://192.168.2.242:3001/auth/signin",
-          data: data,
-          options: Options(
-            headers: {'Content-Type': 'application/json; charset=UTF-8'},
-          ));
-      print('ora');
-      print(response);
+      final Response response =
+          await Dio().post("http://192.168.2.242:3001/auth/signin",
+              data: data,
+              options: Options(
+                headers: {'Content-Type': 'application/json; charset=UTF-8'},
+              ));
+
+      if (response.data['access_token'] != null) {
+        _prefs.then((SharedPreferences prefs) {
+          prefs.setString('access_token', response.data['access_token']);
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const GroupScreen()));
+        });
+      }
     } on DioError catch (e) {
-      if(e.response?.statusCode == 400){
-        print(e.response?.statusCode);
-        print(e.response?.data['message']);
-      }else{
-        print(e.message);
+      if (e.response?.statusCode == 400) {
+        var message = e.response?.data['message'];
+        var snackBar = SnackBar(content: Text(message.join(', ')));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      } else {
+        var snackBar = SnackBar(content: Text(e.toString()));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
     }
   }
@@ -67,6 +78,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                   child: TextFormField(
+                    obscureText: true,
+                    enableSuggestions: false,
+                    autocorrect: false,
                     controller: passwordController,
                     decoration: const InputDecoration(
                       hintText: 'Enter your password',

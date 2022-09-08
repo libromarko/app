@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:app/screens/group_screen.dart';
 import 'package:app/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36,10 +37,11 @@ class _LoadingPageState extends State<LoadingPage> {
   void initState() {
     super.initState();
     _prefs.then((SharedPreferences prefs) {
-      var key = prefs.getString('accessKey');
+      var key = prefs.getString('access_token');
       debugPrint(key);
       if (key != null) {
-        debugPrint(key);
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const GroupScreen()));
       } else {
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => const LoginScreen()));
