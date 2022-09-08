@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/bookmark_model.dart';
 import 'login_screen.dart';
@@ -18,6 +19,15 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   bool _isLoading = true;
   late List<Bookmark> _bookmarks;
+
+  Future<void> _launchInBrowser(Uri url) async {
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw 'Could not launch $url';
+    }
+  }
 
   void getUserBookmarks(token) async {
     try {
@@ -69,7 +79,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
             subtitle: Text(bookmark.url),
             trailing: const Icon(Icons.link),
             onTap: () => {
-              print(bookmark.url)
+              _launchInBrowser(Uri.parse(bookmark.url))
             },
           );
         },
