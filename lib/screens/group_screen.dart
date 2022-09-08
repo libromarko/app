@@ -1,3 +1,4 @@
+import 'package:app/screens/bookmark_screen.dart';
 import 'package:app/screens/login_screen.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -29,9 +30,10 @@ class _GroupScreenState extends State<GroupScreen> {
         _isLoading = false;
       });
     } on DioError catch (e) {
+      _isLoading = false;
       if (e.response?.statusCode == 401) {
         _prefs.then((SharedPreferences prefs) {
-          prefs.remove('counter');
+          prefs.remove('access_token');
 
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (context) => const LoginScreen()));
@@ -64,13 +66,21 @@ class _GroupScreenState extends State<GroupScreen> {
                     return ListTile(
                       title: Text(group.name),
                       trailing: const Icon(Icons.arrow_forward),
-                      onTap: () => {print(group.id)},
+                      onTap: () => {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (context) => BookmarkScreen(
+                                    name: group.name,
+                                    id: group.id,
+                                  )),
+                        )
+                      },
                     );
                   },
                   itemCount: _groups.length,
                 )
               : const Center(
-                  child: Text("No User Object"),
+                  child: Text("There are no groups."),
                 ),
     );
   }

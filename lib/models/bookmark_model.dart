@@ -10,6 +10,9 @@ class Bookmark {
   @JsonKey(name: 'description')
   late String description;
 
+  @JsonKey(name: 'url')
+  late String url;
+
   @JsonKey(name: 'userId')
   late String userId;
 
