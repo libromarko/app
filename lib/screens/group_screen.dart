@@ -23,7 +23,6 @@ class _GroupScreenState extends State<GroupScreen> {
           "http://192.168.2.242:3001/group/user",
           options: Options(headers: {"Authorization": "Bearer $token"}));
 
-      print(response);
       setState(() {
         _groups =
             (response.data as List).map((i) => Group.fromJson(i)).toList();
