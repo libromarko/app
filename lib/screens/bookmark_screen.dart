@@ -9,7 +9,8 @@ import 'login_screen.dart';
 class BookmarkScreen extends StatefulWidget {
   final String name;
   final String id;
-  const BookmarkScreen({Key? key, required this.name, required this.id}) : super(key: key);
+  const BookmarkScreen({Key? key, required this.name, required this.id})
+      : super(key: key);
 
   @override
   State<BookmarkScreen> createState() => _BookmarkScreenState();
@@ -19,6 +20,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   bool _isLoading = true;
   late List<Bookmark> _bookmarks;
+  late String _key;
 
   Future<void> _launchInBrowser(Uri url) async {
     if (!await launchUrl(
@@ -29,7 +31,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
     }
   }
 
-  void getUserBookmarks(token) async {
+  Future<void> getUserBookmarks(token) async {
     try {
       final Response response = await Dio().get(
           "http://192.168.2.242:3001/bookmark/group/${widget.id}",
@@ -57,6 +59,9 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
   void initState() {
     _prefs.then((SharedPreferences prefs) {
       var key = prefs.getString('access_token');
+      setState(() {
+        _key = key!;
+      });
       getUserBookmarks(key);
     });
 
@@ -70,24 +75,29 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _bookmarks.isNotEmpty
-          ? ListView.builder(
-        itemBuilder: (context, index) {
-          final bookmark = _bookmarks[index];
+              ? RefreshIndicator(
+                  triggerMode: RefreshIndicatorTriggerMode.onEdge,
+                  onRefresh: () async {
+                    await getUserBookmarks(_key);
+                  },
+                  child: ListView.builder(
+                    itemBuilder: (context, index) {
+                      final bookmark = _bookmarks[index];
 
-          return ListTile(
-            title: Text(bookmark.description),
-            subtitle: Text(bookmark.url),
-            trailing: const Icon(Icons.link),
-            onTap: () => {
-              _launchInBrowser(Uri.parse(bookmark.url))
-            },
-          );
-        },
-        itemCount: _bookmarks.length,
-      )
-          : const Center(
-        child: Text("The group does not contain bookmarks."),
-      ),
+                      return ListTile(
+                        title: Text(bookmark.description),
+                        subtitle: Text(bookmark.url),
+                        trailing: const Icon(Icons.link),
+                        onTap: () =>
+                            {_launchInBrowser(Uri.parse(bookmark.url))},
+                      );
+                    },
+                    itemCount: _bookmarks.length,
+                  ),
+                )
+              : const Center(
+                  child: Text("The group does not contain bookmarks."),
+                ),
     );
   }
 }

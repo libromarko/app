@@ -3,6 +3,7 @@ import 'package:app/screens/group_screen.dart';
 import 'package:app/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dio/dio.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,15 +34,35 @@ class LoadingPage extends StatefulWidget {
 class _LoadingPageState extends State<LoadingPage> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
+  Future<bool> getMe(token) async {
+    try {
+      await Dio().get("http://192.168.2.242:3001/user/me",
+          options: Options(headers: {"Authorization": "Bearer $token"}));
+
+      return true;
+    } on DioError catch (e) {
+      return false;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     _prefs.then((SharedPreferences prefs) {
       var key = prefs.getString('access_token');
-      debugPrint(key);
       if (key != null) {
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const GroupScreen()));
+        getMe(key).then((value) => {
+              if (value)
+                {
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      builder: (context) => const GroupScreen()))
+                }
+              else
+                {
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      builder: (context) => const LoginScreen()))
+                }
+            });
       } else {
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => const LoginScreen()));
@@ -56,7 +77,9 @@ class _LoadingPageState extends State<LoadingPage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[Image.asset('assets/ic_launcher_adaptive_fore.png')],
+          children: <Widget>[
+            Image.asset('assets/ic_launcher_adaptive_fore.png')
+          ],
         ),
       ),
     );

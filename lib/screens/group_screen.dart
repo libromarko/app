@@ -17,8 +17,9 @@ class _GroupScreenState extends State<GroupScreen> {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   bool _isLoading = true;
   late List<Group> _groups;
+  late String _key;
 
-  void getUserGroups(token) async {
+  Future<void> getUserGroups(token) async {
     try {
       final Response response = await Dio().get(
           "http://192.168.2.242:3001/group/user",
@@ -46,6 +47,9 @@ class _GroupScreenState extends State<GroupScreen> {
   void initState() {
     _prefs.then((SharedPreferences prefs) {
       var key = prefs.getString('access_token');
+      setState(() {
+        _key = key!;
+      });
       getUserGroups(key);
     });
 
@@ -55,29 +59,53 @@ class _GroupScreenState extends State<GroupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Groups")),
+      appBar: AppBar(
+        title: const Text("Groups"),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(
+              Icons.logout,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              _prefs.then((SharedPreferences prefs) {
+                prefs.remove('access_token');
+
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => const LoginScreen()));
+              });
+            },
+          )
+        ],
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _groups.isNotEmpty
-              ? ListView.builder(
-                  itemBuilder: (context, index) {
-                    final group = _groups[index];
-
-                    return ListTile(
-                      title: Text(group.name),
-                      trailing: const Icon(Icons.arrow_forward),
-                      onTap: () => {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                              builder: (context) => BookmarkScreen(
-                                    name: group.name,
-                                    id: group.id,
-                                  )),
-                        )
-                      },
-                    );
+              ? RefreshIndicator(
+                  triggerMode: RefreshIndicatorTriggerMode.onEdge,
+                  onRefresh: () async {
+                    await getUserGroups(_key);
                   },
-                  itemCount: _groups.length,
+                  child: ListView.builder(
+                    itemBuilder: (context, index) {
+                      final group = _groups[index];
+
+                      return ListTile(
+                        title: Text(group.name),
+                        trailing: const Icon(Icons.arrow_forward),
+                        onTap: () => {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (context) => BookmarkScreen(
+                                      name: group.name,
+                                      id: group.id,
+                                    )),
+                          )
+                        },
+                      );
+                    },
+                    itemCount: _groups.length,
+                  ),
                 )
               : const Center(
                   child: Text("There are no groups."),
