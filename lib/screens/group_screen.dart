@@ -1,10 +1,10 @@
-import 'package:app/screens/bookmark_screen.dart';
-import 'package:app/screens/login_screen.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/group_model.dart';
+import 'bookmark_screen.dart';
+import 'login_screen.dart';
 
 class GroupScreen extends StatefulWidget {
   const GroupScreen({Key? key}) : super(key: key);

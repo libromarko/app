@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'package:app/screens/group_screen.dart';
-import 'package:app/screens/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:libromarko/screens/group_screen.dart';
+import 'package:libromarko/screens/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
 
