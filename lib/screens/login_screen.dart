@@ -26,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
       };
 
       final Response response =
-          await Dio().post("http://192.168.2.242:3001/auth/signin",
+          await Dio().post("https://api.libromarko.xyz/auth/signin",
               data: data,
               options: Options(
                 headers: {'Content-Type': 'application/json; charset=UTF-8'},

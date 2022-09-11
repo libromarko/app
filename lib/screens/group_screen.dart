@@ -22,7 +22,7 @@ class _GroupScreenState extends State<GroupScreen> {
   Future<void> getUserGroups(token) async {
     try {
       final Response response = await Dio().get(
-          "http://192.168.2.242:3001/group/user",
+          "https://api.libromarko.xyz/group/user",
           options: Options(headers: {"Authorization": "Bearer $token"}));
 
       setState(() {

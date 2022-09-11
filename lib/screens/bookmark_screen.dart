@@ -34,7 +34,7 @@ class _BookmarkScreenState extends State<BookmarkScreen> {
   Future<void> getUserBookmarks(token) async {
     try {
       final Response response = await Dio().get(
-          "http://192.168.2.242:3001/bookmark/group/${widget.id}",
+          "https://api.libromarko.xyz/bookmark/group/${widget.id}",
           options: Options(headers: {"Authorization": "Bearer $token"}));
 
       setState(() {

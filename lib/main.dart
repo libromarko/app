@@ -36,7 +36,7 @@ class _LoadingPageState extends State<LoadingPage> {
 
   Future<bool> getMe(token) async {
     try {
-      await Dio().get("http://192.168.2.242:3001/user/me",
+      await Dio().get("https://api.libromarko.xyz/user/me",
           options: Options(headers: {"Authorization": "Bearer $token"}));
 
       return true;
