@@ -1,6 +1,6 @@
 # app
 
-libromarko app
+**Note: This project is no longer actively maintained.**
 
 ## Getting Started
 
